@@ -1,6 +1,20 @@
 # Aegis
+Hosted logic layer for Jamf CS Ops Claude skills.
+**Repo:** https://github.com/ToddJamf/aegis (public)
+**Owner:** Todd Massey, CS Ops
 
-Hosted logic layer for Jamf CS Ops Claude skills. Skills contain a thin bootstrap that fetches actual instructions from this repo at runtime. Update a file here → all users pick it up automatically, no reinstall required.
+Skills contain a thin bootstrap SKILL.md that fetches live instructions from this repo at runtime. Update a file here, push to main — all users pick it up automatically, no reinstall.
+
+---
+
+## Skills served
+
+| Skill | Purpose | Bootstrap |
+|-------|---------|-----------|
+| **Oracle** | Meeting prep: brief, 1:1, success plan | `oracle/SKILL.md` |
+| **Radar** | Operational CS: renewal, expansion, plate, gaps, compliance, heat-map, portfolio, update | `radar/SKILL.md` |
+| **Ask Gainsight** | Quick factual lookup, all users | `ask-gainsight/SKILL.md` |
+| **Pulse** | Community intelligence: dashboard, dormant, unanswered, Heroes | `pulse/SKILL.md` |
 
 ---
 
@@ -9,58 +23,94 @@ Hosted logic layer for Jamf CS Ops Claude skills. Skills contain a thin bootstra
 ```
 aegis/
   shared/
-    identity.md              ← auth / user identity resolution (shared across all skills)
-    error-handling.md        ← error patterns, safe call discipline (shared across all skills)
-  sentinel/
-    protocol.md              ← Sentinel router + orchestration (always fetched)
-    capability-brief.md      ← Cap 3: pre-call brief
-    capability-top-accounts.md      ← Cap 4: top accounts to work (CSM)
-    capability-activity-gap-csm.md  ← Cap 5: activity gap scan (CSM)
-    capability-leader-activity-gap.md   ← Cap 6: activity gap report (Leader)
-    capability-leader-escalations.md    ← Cap 7: top accounts to escalate (Leader)
-    capability-success-plan.md          ← Cap 10: draft success plan
+    identity.md              ← 6-tier CS identity (Oracle, Ask Gainsight, Pulse)
+    error-handling.md        ← shared error patterns
+  oracle/
+    SKILL.md                 ← thin bootstrap
+    protocol.md              ← router + orchestration (meeting prep)
+    capability-brief.md      ← pre-call brief
+    capability-1on1.md       ← 1:1 prep (DOWN/CSM, DOWN/FLL, UP)
+    capability-plan.md       ← success plan draft
+  radar/
+    SKILL.md                 ← thin bootstrap
+    protocol.md              ← router (renewal + expansion + operational)
+    capability-renewal.md    ← renewal triage (R1–R5 scoring)
+    capability-expansion.md  ← expansion pipeline (E1–E4 scoring)
+    capability-plate.md      ← my-plate (CSM) + team plate (FLL)
+    capability-gaps.md       ← my-gaps (CSM) + compliance (FLL)
+    capability-heat-map.md   ← team risk, escalations, wins (FLL+)
+    capability-portfolio.md  ← portfolio / segment story (FLL+)
+  ask-gainsight/
+    SKILL.md                 ← thin bootstrap
+    protocol.md              ← quick lookup, glossary, all users
+  pulse/
+    SKILL.md                 ← thin bootstrap
+    protocol.md              ← router + data quality + Heroes score formula
+    capability-dashboard.md  ← community KPI report + ops dashboard
+    capability-dormant.md    ← dormant account list
+    capability-unanswered.md ← unanswered posts queue
+    capability-heroes.md     ← Heroes tracker + Heroes pipeline
+  sentinel/                  ← archived (superseded by Oracle + Radar + Ask Gainsight)
 ```
 
-**Bundled in each skill package (not hosted here — stable reference data):**
-- `field-registry.md` — Gainsight field names
-- `terminology-cs.md` / `terminology-public.md` — glossary
-- `efficiency.md` — query design patterns
-- `setup.md`, `test-mode.md`, `overview.md`
+---
+
+## Skill scope boundaries
+
+| Request | Skill |
+|---------|-------|
+| "Brief me on Acme" / "I have a call with Acme" | Oracle |
+| "1:1 with [name]" / "prep for my 1:1 with [manager]" | Oracle |
+| "Draft a success plan for Acme" | Oracle |
+| "Show my radar" / "what's renewing" / "expansion pipeline" | Radar |
+| "What's on my plate" / "top accounts this week" | Radar |
+| "Activity gap" / "team compliance" / "who needs coaching" | Radar |
+| "What should I escalate" / "team heat map" / "segment story" | Radar |
+| "When does Acme renew?" / "who is the CSM on Acme?" | Ask Gainsight |
+| "What is a CTA?" / "what is a success plan?" | Ask Gainsight |
+| "Community dashboard" / "dormant accounts" / "Heroes tracker" | Pulse |
+| ARR trends, license analytics, Snowflake data | ask-snowflake-analyst |
+
+---
+
+## Identity model
+
+**CS org identity — shared/identity.md (Oracle, Radar leader capabilities, Ask Gainsight):**
+Full 6-tier model: CSM · FLL · Segment Leader · SR Leadership · Department Head · Not CS
+
+**Radar CSM/AE identity — radar/references/identity.md:**
+Persona detection via book counts (Csm vs Primary_Territory_Owner__gc field). Distinct from CS org identity.
 
 ---
 
 ## Update workflow
 
-1. Edit any file in this repo
-2. Commit + push to `main`
-3. All users pick up the change on next skill activation — no reinstall
+1. Edit files in `~/Documents/GitHub/aegis/`
+2. Open GitHub Desktop → Commit → Push
+3. Done — all users pick up on next activation
 
 ---
 
-## Raw fetch URLs
+## Bootstrap pattern
 
-| File | URL |
-|------|-----|
-| `shared/identity.md` | `https://raw.githubusercontent.com/ToddJamf/aegis/main/shared/identity.md` |
-| `shared/error-handling.md` | `https://raw.githubusercontent.com/ToddJamf/aegis/main/shared/error-handling.md` |
-| `sentinel/protocol.md` | `https://raw.githubusercontent.com/ToddJamf/aegis/main/sentinel/protocol.md` |
-| `sentinel/capability-brief.md` | `https://raw.githubusercontent.com/ToddJamf/aegis/main/sentinel/capability-brief.md` |
-| `sentinel/capability-top-accounts.md` | `https://raw.githubusercontent.com/ToddJamf/aegis/main/sentinel/capability-top-accounts.md` |
-| `sentinel/capability-activity-gap-csm.md` | `https://raw.githubusercontent.com/ToddJamf/aegis/main/sentinel/capability-activity-gap-csm.md` |
-| `sentinel/capability-leader-activity-gap.md` | `https://raw.githubusercontent.com/ToddJamf/aegis/main/sentinel/capability-leader-activity-gap.md` |
-| `sentinel/capability-leader-escalations.md` | `https://raw.githubusercontent.com/ToddJamf/aegis/main/sentinel/capability-leader-escalations.md` |
-| `sentinel/capability-success-plan.md` | `https://raw.githubusercontent.com/ToddJamf/aegis/main/sentinel/capability-success-plan.md` |
+Each skill's SKILL.md:
+1. Carries `name` + `description` for triggering
+2. Fetches `protocol.md` from Aegis on activation
+3. Lists bundled `references/` files available locally
+
+**Aegis-hosted:** routing logic, capability workflows, query patterns (change with business logic)
+**Bundled:** field definitions, terminology, templates, GSID maps, HTML specs (stable reference data)
 
 ---
 
-## Skill bootstrap (thin SKILL.md)
+## Outstanding
 
-The installed Sentinel `SKILL.md` contains only:
-1. Frontmatter (name, description for skill triggering)
-2. One instruction: fetch `sentinel/protocol.md` and execute it
-
-The protocol then fetches shared and capability files on demand.
+- [ ] Rename Gainsight Sentinel → Oracle (new .skill package)
+- [ ] Rebuild Radar .skill package with expanded SKILL.md
+- [ ] Build Ask Gainsight .skill package
+- [ ] Rebuild Pulse .skill package with updated SKILL.md
+- [ ] Centralized agentic deployment (future scope)
 
 ---
 
-*Aegis v2.0 — June 2026 | Todd Massey, CS Ops*
+*Aegis v2.0 — June 2026 | Oracle · Radar · Ask Gainsight · Pulse*
