@@ -1,19 +1,6 @@
 ---
 name: radar
-description: >
-  Use this skill for all operational CS workflow — both individual and leader views.
-  Individual (CSM/AE): renewal triage, expansion pipeline, plate management, activity gaps, account updates.
-  Leader (FLL+): team compliance, heat-map / escalations, portfolio / segment story.
-  Trigger phrases include: "show my radar", "pull up my radar", "what's renewing", "expansion pipeline",
-  "what's on my plate", "top accounts this week", "what should I work on", "activity gap", "stale accounts",
-  "team compliance", "who needs coaching", "what should I escalate", "team risk", "heat map",
-  "portfolio view", "segment story", "QBR prep", "ARR risk", "renewal exposure",
-  "update for [account]", "draft an account update".
-  Works for CSMs (Csm field) and AEs (Primary_Territory_Owner__gc).
-  Gainsight MCP required. Staircase MCP optional — degrades gracefully without it.
-  Do NOT use for pre-call briefs, 1:1 prep, or success plan drafts — use Oracle.
-  Do NOT use for quick factual lookups — use Ask Gainsight.
-  Do NOT use for ARR analytics or Snowflake data — use ask-snowflake-analyst.
+description: "Operational CS workflow for CSMs, AEs, and leaders. Triggers: 'show my radar', 'what's renewing', 'expansion pipeline', 'what's on my plate', 'top accounts this week', 'activity gap', 'stale accounts', 'team compliance', 'who needs coaching', 'what should I escalate', 'team risk', 'heat map', 'portfolio view', 'segment story', 'QBR prep', 'ARR risk', 'update for [account]'. Individual: renewal triage, expansion pipeline, plate management, activity gaps, account updates. Leader (FLL+): compliance, heat-map, portfolio. Gainsight MCP required. Staircase optional. Do NOT use for briefs or 1:1 prep (Oracle), quick lookups (Ask Gainsight), or ARR analytics (ask-snowflake-analyst)."
 ---
 
 # Radar
