@@ -25,7 +25,7 @@ Every data read routes to its authoritative tool. These rules replace per-skill 
 
 | Data need | Route to | Never |
 |-----------|----------|-------|
-| Account attributes (ARR, CSM, Stage, Renewal Date, Segment) | `resolve_customer` **attributes mode** — resolution + C360 attributes in one call | Multiple `run_query` sub-calls per attribute |
+| Account attributes (ARR, CSM, Stage, Renewal Date, Segment) | `resolve_customer` **`mode="add_attributes"`** — resolution + C360 attributes in one call | Multiple `run_query` sub-calls per attribute; `mode="attributes"` (invalid — causes error) |
 | Health score | `ask_scorecard` — overall + **trend** (history) + measure breakdown + root cause | Point-in-time score render with no trend |
 | Timeline / activities | `fetch_timeline_activity_list` with `contextual_user_query` (semantic, relevance-ranked, auto-RAG, ~1yr default) | `run_query` on timeline; keyword topic filtering — both against MCP guidance |
 | CTAs (incl. linked objects) | `fetch_cta_list` with `linked_object` + `IsClosed=false` | `run_query` (can't fetch CTA linked objects) |
@@ -64,4 +64,5 @@ Staircase Risk and Expansion analyses are produced by **independent analyst agen
 
 ---
 
+*2026.06.14 — Bug fix: `resolve_customer` attributes mode corrected to `mode="add_attributes"` (live test confirmed `mode="attributes"` returns an error). Entry updated in read-routing table.*
 *2026.06.13 — Created as shared/source-routing.md (broadened from the charter's planned staircase-routing.md per the shared-vs-skill line). Read source-of-truth for the stack: account attributes, health, timeline, CTAs, contacts, person resolution, self-scoped reads, and the B7 Staircase↔Gainsight synced-field cardinality rule. Anchors Bluhm B7 + B2 recency. Capability/intent routing stays per-skill.*

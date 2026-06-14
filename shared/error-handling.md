@@ -101,12 +101,12 @@ Registry stays the efficiency cache; metadata is the recovery path. Don't bulk-l
 |--------|---------|------------|
 | `get_object_metadata("company")` | 70k chars | Parse from saved file path (response includes path); cache parsed schema for session |
 | `fetch_cta_list` (no filter) | 174k for large accounts | Always include `IsClosed=false`; constrain `select` |
+| `fetch_timeline_activity_list` (large account) | 100k+ chars | Always pass `limit=10`; if still truncated, response is saved to a Mac host path — use `Read` tool (not bash) |
 | `resolve_user("Tim")` (common first name) | 75k for common first name | Skip `resolve_user`; `run_query` on `gsuser` with last-name CONTAINS filter |
 
-When a saved-file path is returned, parse with:
-```python
-raw = json.load(open(saved_path))
-data = json.loads(raw[0]['text']) if isinstance(raw, list) else raw
+When a saved-file path is returned, use the **`Read` file tool** on the saved path — it is a Mac host path, not accessible from the bash sandbox. Do not use bash or Python to open it.
+```
+Read(saved_path)  # returns file contents directly; parse JSON from the result
 ```
 
 ### A3. Tenant schema drift — phantom fields (Timeline)
@@ -249,6 +249,7 @@ When a new pattern surfaces in production: append it to the right layer. Capabil
 
 ---
 
+*2026.06.14 — Bug fix A2: `fetch_timeline_activity_list` added to truncation table with `limit=10` enforcement. Saved-file parse instruction corrected from bash/Python to `Read` tool (Mac host path not accessible from bash sandbox — confirmed in live test).*
 *2026.06.13c — A4 account disambiguation rewritten: account team membership (Csm, AE, SE, Renewal Rep, Exec Sponsor) is the primary resolution path. Non-team users fall to context narrowing, then plain ask with differentiating list.*
 *2026.06.13b — §0 user message locked: three scenario variants (permission denied, not found, tool failure). Short, warm, always actionable.*
 *2026.06.13 — Restructured into three layers (Recover / Degrade / Escalate). Added §0 access-escalation foundation — the stack-wide fallback all skills drop to, with copy-paste CS Ops block routed to #help-gainsight (CKBKTL1PD, confirmed) + jamf.it/csopsticket. Added A1 self-healing field recovery (get_object_metadata on P_5xxx). Header updated to CalVer + full skill list; output rules delegated to output-discipline.md. Prior technical sections preserved, reorganized under §A/§B.*
