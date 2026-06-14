@@ -1,5 +1,5 @@
 # Pulse — Capability: Unanswered Posts
-# Aegis v1.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/pulse/capability-unanswered.md
 #
 # Triggers: "unanswered questions", "unanswered posts", "what needs a reply",
@@ -47,4 +47,5 @@ No artifact — chat table is preferred for unanswered posts so the team can act
 
 ---
 
-*Pulse capability-unanswered.md v1.0 (2026-06-03) — Extracted from Pulse v1.1. Full query spec in references/unanswered.md.*
+*2026.06.13 — CalVer header adopted. Definition, query logic, aging bands, and output unchanged.*
+*2026.06 (v1.0) — Extracted from Pulse v1.1. Full query spec in references/unanswered.md.*

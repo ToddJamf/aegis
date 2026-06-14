@@ -1,5 +1,5 @@
 # Pulse — Capability: Heroes Tracker & Pipeline
-# Aegis v1.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/pulse/capability-heroes.md
 #
 # Two capabilities in one file — routed by trigger.
@@ -80,4 +80,5 @@ Sort by Readiness Score descending.
 
 ---
 
-*Pulse capability-heroes.md v1.0 (2026-06-03) — Extracted from Pulse v1.1. Full query specs in references/super-users.md and references/heroes-pipeline.md. Readiness Score formula canonical in protocol.md.*
+*2026.06.13 — CalVer header adopted. Readiness Score formula, tracker/pipeline logic, joins, and outputs unchanged.*
+*2026.06 (v1.0) — Extracted from Pulse v1.1. Full query specs in references/super-users.md and references/heroes-pipeline.md. Readiness Score formula canonical in protocol.md.*

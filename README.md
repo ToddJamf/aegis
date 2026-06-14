@@ -7,14 +7,47 @@ Skills contain a thin bootstrap SKILL.md that fetches live instructions from thi
 
 ---
 
+## ⛔ Repo guardrails — read before committing
+
+This repo is **public**. A hard rule governs what may live here:
+
+**Allowed (short-term):** Jamf internal IDs, Gainsight field/schema structure, internal Slack channel IDs. Accepted trade-off — data hosting moves elsewhere and this repo goes private later.
+
+**NEVER commit — no exceptions:** customer information, PII (including employee names/emails), or compliance data.
+
+Before committing any file — especially bundled references ported from legacy sentinel/Sentinel-era packages — scan for and scrub customer names, ARR figures, contact PII, employee names/emails, community usernames, and compliance data. Genericize examples to fictional names (Acme, etc.).
+
+**The gate is reading, not grep.** A known-name grep is necessary but NOT sufficient — it only catches names already on the list, and legacy archives carry names you've never seen (real customers, employees, community handles all slipped a grep-only pass during the rebuild). Anything ported from a legacy `.skill` archive must be **read and scrubbed at the source before it enters the repo**, then verified by a line-by-line read — not a blocklist grep. Use example.com for any sample email; never a real domain. Run the grep too (`@`, `$`, known names) as a backstop, not the primary check.
+
+---
+
 ## Skills served
 
 | Skill | Purpose | Bootstrap |
 |-------|---------|-----------|
-| **Oracle** | Meeting prep: brief, 1:1, success plan | `oracle/SKILL.md` |
-| **Radar** | Operational CS: renewal, expansion, plate, gaps, compliance, heat-map, portfolio, update | `radar/SKILL.md` |
-| **Ask Gainsight** | Quick factual lookup, all users | `ask-gainsight/SKILL.md` |
+| **Oracle** | Account meeting prep: pre-call brief, success-plan draft | `oracle/SKILL.md` |
+| **Mentor** | People prep: 1:1 prep (down to a report, up to your manager) | `mentor/SKILL.md` |
+| **Radar** | Operational CS: renewal, expansion, plate, gaps, compliance, heat-map, portfolio | `radar/SKILL.md` |
 | **Pulse** | Community intelligence: dashboard, dormant, unanswered, Heroes | `pulse/SKILL.md` |
+
+Quick single-fact lookups ("when does Acme renew?", "who's the CSM on Acme?") are served by the Gainsight MCP connector directly — no dedicated skill. Glossary ("what is a CTA?") is owned by Oracle.
+
+---
+
+## Shared layer (the lean architecture)
+
+Cross-cutting logic lives once in `shared/` and is fetched by every skill — fix once, all skills pick it up:
+
+```
+shared/
+  identity.md          ← who's asking: 6-tier CS model, org walk, verify_downward, detect_direction
+  source-routing.md    ← which tool answers which data read (incl. Bluhm B7 Staircase routing)
+  error-handling.md    ← Recover / Degrade / Escalate; §0 access-escalation foundation
+  output-discipline.md ← footer policy, CalVer, voice, anti-AI language (one SSOT)
+  redirect.md          ← cross-skill dispatch: who-owns-what map + redirect pattern
+```
+
+A skill only knows "is this mine?" — everything cross-cutting (data routing, errors, footer, handoff) is delegated to the shared layer, not reimplemented locally.
 
 ---
 
@@ -22,52 +55,28 @@ Skills contain a thin bootstrap SKILL.md that fetches live instructions from thi
 
 ```
 aegis/
-  shared/
-    identity.md              ← 6-tier CS identity (Oracle, Ask Gainsight, Pulse)
-    error-handling.md        ← shared error patterns
-  oracle/
-    SKILL.md                 ← thin bootstrap
-    protocol.md              ← router + orchestration (meeting prep)
-    capability-brief.md      ← pre-call brief
-    capability-1on1.md       ← 1:1 prep (DOWN/CSM, DOWN/FLL, UP)
-    capability-plan.md       ← success plan draft
-  radar/
-    SKILL.md                 ← thin bootstrap
-    protocol.md              ← router (renewal + expansion + operational)
-    capability-renewal.md    ← renewal triage (R1–R5 scoring)
-    capability-expansion.md  ← expansion pipeline (E1–E4 scoring)
-    capability-plate.md      ← my-plate (CSM) + team plate (FLL)
-    capability-gaps.md       ← my-gaps (CSM) + compliance (FLL)
-    capability-heat-map.md   ← team risk, escalations, wins (FLL+)
-    capability-portfolio.md  ← portfolio / segment story (FLL+)
-  ask-gainsight/
-    SKILL.md                 ← thin bootstrap
-    protocol.md              ← quick lookup, glossary, all users
-  pulse/
-    SKILL.md                 ← thin bootstrap
-    protocol.md              ← router + data quality + Heroes score formula
-    capability-dashboard.md  ← community KPI report + ops dashboard
-    capability-dormant.md    ← dormant account list
-    capability-unanswered.md ← unanswered posts queue
-    capability-heroes.md     ← Heroes tracker + Heroes pipeline
-  sentinel/                  ← archived (superseded by Oracle + Radar + Ask Gainsight)
+  shared/   identity · source-routing · error-handling · output-discipline · redirect
+  oracle/   SKILL · protocol · capability-brief · capability-plan · references/ (field-registry, write-gateway, arr-policy, run-as, menus, glossary, terminology-cs/public, synonym-map, overview, test-mode, connector-setup, push, fallback)
+  mentor/   SKILL · protocol · capability-1on1 · references/ (field-registry, fallback)
+  radar/    SKILL · protocol · capability-renewal/expansion/plate/gaps/heat-map/portfolio · references/ (identity, scoring, artifact, field-registry, arr-policy, connector-setup, fallback)
+  pulse/    SKILL · protocol · capability-dashboard/dormant/unanswered/heroes
 ```
+
+(The `sentinel/` monolith was removed 2026.06.13 — fully superseded by the carved skills above.)
 
 ---
 
 ## Skill scope boundaries
 
+The authoritative who-does-what map lives in `shared/redirect.md`. Summary:
+
 | Request | Skill |
 |---------|-------|
-| "Brief me on Acme" / "I have a call with Acme" | Oracle |
-| "1:1 with [name]" / "prep for my 1:1 with [manager]" | Oracle |
-| "Draft a success plan for Acme" | Oracle |
-| "Show my radar" / "what's renewing" / "expansion pipeline" | Radar |
-| "What's on my plate" / "top accounts this week" | Radar |
-| "Activity gap" / "team compliance" / "who needs coaching" | Radar |
-| "What should I escalate" / "team heat map" / "segment story" | Radar |
-| "When does Acme renew?" / "who is the CSM on Acme?" | Ask Gainsight |
-| "What is a CTA?" / "what is a success plan?" | Ask Gainsight |
+| "Brief me on Acme" / "I have a call with Acme" / "Draft a success plan for Acme" | Oracle |
+| "1:1 with [name]" / "prep for my 1:1 with [manager]" | **Mentor** |
+| "Show my radar" / "what's renewing" / "what's on my plate" / "team compliance" / "heat map" | Radar |
+| "When does Acme renew?" / "who is the CSM on Acme?" | Gainsight connector directly (or Oracle for a full brief) |
+| "What is a CTA?" / glossary | Oracle |
 | "Community dashboard" / "dormant accounts" / "Heroes tracker" | Pulse |
 | ARR trends, license analytics, Snowflake data | ask-snowflake-analyst |
 
@@ -75,11 +84,10 @@ aegis/
 
 ## Identity model
 
-**CS org identity — shared/identity.md (Oracle, Radar leader capabilities, Ask Gainsight):**
-Full 6-tier model: CSM · FLL · Segment Leader · SR Leadership · Department Head · Not CS
+**CS org identity — `shared/identity.md`** (Oracle, Mentor, Radar leader capabilities):
+6-tier model — CSM · FLL · Segment Leader · SR Leadership · Department Head · Not CS. No-record/no-access → error-handling §0 escalate (no dead-end).
 
-**Radar CSM/AE identity — radar/references/identity.md:**
-Persona detection via book counts (Csm vs Primary_Territory_Owner__gc field). Distinct from CS org identity.
+**Radar CSM/AE identity — `radar/references/identity.md`:** persona detection via book counts (Csm vs `Primary_Territory_Owner__gc`). Distinct from CS org identity. *(Pending: this file needs to be brought into the repo — see Outstanding.)*
 
 ---
 
@@ -91,26 +99,20 @@ Persona detection via book counts (Csm vs Primary_Territory_Owner__gc field). Di
 
 ---
 
-## Bootstrap pattern
+## Versioning — CalVer
 
-Each skill's SKILL.md:
-1. Carries `name` + `description` for triggering
-2. Fetches `protocol.md` from Aegis on activation
-3. Lists bundled `references/` files available locally
-
-**Aegis-hosted:** routing logic, capability workflows, query patterns (change with business logic)
-**Bundled:** field definitions, terminology, templates, GSID maps, HTML specs (stable reference data)
+One stack date (`Aegis stack YYYY.MM.DD`) per ship, per-file changelog footers, git tag per ship. The legacy `Aegis vN` scheme is retired — see `shared/output-discipline.md` §2.
 
 ---
 
 ## Outstanding
 
-- [ ] Rename Gainsight Sentinel → Oracle (new .skill package)
-- [ ] Rebuild Radar .skill package with expanded SKILL.md
-- [ ] Build Ask Gainsight .skill package
-- [ ] Rebuild Pulse .skill package with updated SKILL.md
+- [ ] `shared/identity.md` — swap hardcoded book-size query for `get_portfolio_filters` (gated on a real CSM-seat probe, Decision 8)
+- [ ] Repackage Oracle + Mentor + Radar + Pulse `.skill` files; UAT (FLL + Segment Leader cold-run)
+- [ ] Uninstall the `gainsight-sentinel` monolith AND the standalone Ask Gainsight skill (folded into Oracle) from the installed set
+- [ ] (Deferred) Radar `update` capability — never built; write-adjacent, revisit post-Phase-2
 - [ ] Centralized agentic deployment (future scope)
 
 ---
 
-*Aegis v2.0 — June 2026 | Oracle · Radar · Ask Gainsight · Pulse*
+*Aegis stack 2026.06.13 | Oracle · Mentor · Radar · Pulse*

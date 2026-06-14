@@ -1,10 +1,12 @@
 # Radar — Capability: Renewal Triage
-# Aegis v2.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/radar/capability-renewal.md
 #
 # Tab 1 of the Radar artifact. 180-day renewal window, R1–R5 scoring, swim lanes.
 # Load scoring formulas from references/scoring.md.
 # Load HTML artifact template from references/artifact.md.
+# Staircase recency + risk-weighting (B2): see capability-expansion.md + shared/source-routing.md.
+# Output/footer: shared/output-discipline.md (lean footer per protocol).
 
 ---
 
@@ -141,6 +143,11 @@ Within each lane: sort by total score ascending (lowest = most urgent). Then by 
 - Connected, lookup succeeded: header + narrative
 - Connected, lookup failed: header + *"No Staircase match found for [name]."*
 
+**B2 recency on renewal risk reads:** when the Staircase narrative carries a risk signal, apply the
+recency proxy + risk-weighting from capability-expansion.md (B2) — Risk and Expansion analyses are
+independent, timestamp-less analyst agents, so use the cited-evidence date range for recency and let
+the more-recent-anchored analysis win on stakeholder disagreement. Routing rule: source-routing.md.
+
 ---
 
 ## Loading state
@@ -149,4 +156,5 @@ Render skeleton rows while both queries are pending. See `references/artifact.md
 
 ---
 
-*Radar capability-renewal.md v2.0 (2026-06-03) — Extracted from Radar SKILL.md v1.3. Full scoring spec in references/scoring.md. Full HTML spec in references/artifact.md.*
+*2026.06.13 — Migrated onto shared layer (header CalVer; output → output-discipline lean footer). Cross-ref to B2 Staircase recency/risk-weighting (shared with expansion). R1–R5 scoring + tech-touch logic unchanged.*
+*2026-06-03 (v2.0) — Extracted from Radar SKILL.md v1.3. Full scoring spec in references/scoring.md.*

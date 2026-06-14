@@ -1,5 +1,5 @@
 # Pulse — Protocol (Router)
-# Aegis v1.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/pulse/protocol.md
 #
 # Pulse is Jamf's community intelligence skill. Surfaces Jamf Nation health,
@@ -10,7 +10,7 @@
 
 ## Does NOT do
 
-- **No Gainsight CS data** — account health, CTAs, renewal → Oracle or Ask Gainsight
+- **No Gainsight CS data** — account health, CTAs, renewal → Oracle (or the Gainsight connector directly)
 - **No ARR trend analytics** → ask-snowflake-analyst
 - **No external posts or sends** without explicit user confirmation
 - **No writes** to Gainsight or any system
@@ -19,11 +19,15 @@
 
 ## Output discipline
 
-- Tool loading is silent. Never narrate intermediate steps.
-- First user-facing line is the answer.
+Footer/voice governed by `shared/output-discipline.md` — don't redefine it here, follow that file.
+Pulse dashboards are substantive HTML output: they take the **full footer** plus the **header
+short-form** (per output-discipline §1). Don't author a Pulse-local disclaimer string.
+
+Pulse-specific mechanic that stays here:
 - Partial month data: always flag with ★ on chart labels. Never extrapolate partial-month data to full-month projections.
-- **AI disclaimer — always present:** Short variant in headers. Full variant in footers:
-  *"AI-generated from Snowflake/Gainsight. Verify before acting."*
+
+Silent tool loading, headline-first, parallel calls, surface failures directly — all per
+`shared/output-discipline.md`.
 
 ---
 
@@ -67,6 +71,8 @@ Load on demand.
 | `references/unanswered.md` | Unanswered posts query spec (supplementary) | 🟡 Degraded |
 | `references/super-users.md` | Heroes tracker spec (supplementary) | 🟡 Degraded |
 | `references/heroes-pipeline.md` | Heroes pipeline spec (supplementary) | 🟡 Degraded |
+| `https://raw.githubusercontent.com/ToddJamf/aegis/main/shared/output-discipline.md` | Producing any user-facing output (footer/voice) | 🔴 Blocking |
+| `https://raw.githubusercontent.com/ToddJamf/aegis/main/shared/redirect.md` | Request looks out-of-scope (cross-skill handoff) | 🔴 Blocking |
 
 **Fallback:**
 - 🔴 Blocking — load fails → hard stop. *"Pulse is missing a required file. Contact CS Ops."*
@@ -85,7 +91,7 @@ Load on demand.
 | Trigger | Capability |
 |---------|-----------|
 | "community dashboard" / "KPI report" / "how is Jamf Nation doing" / "community health" / "community KPIs" | `dashboard` |
-| "ops dashboard" / "weekly ops" / "Mitchell dashboard" / "Jeni dashboard" | `pulse_ops` |
+| "ops dashboard" / "weekly ops" | `pulse_ops` |
 | "dormant accounts" / "accounts gone quiet" / "re-engagement list" / "who's gone dark" | `dormant` |
 | "unanswered questions" / "unanswered posts" / "what needs a reply" / "posts with no answer" | `unanswered` |
 | "Heroes tracker" / "Heroes health" / "how are our Heroes doing" / "super users" | `super_users` |
@@ -101,7 +107,7 @@ Load on demand.
 | 1–2 metrics | Chat |
 | Full dashboard | HTML render |
 | Leadership report | PDF via `references/pdf-template.html` |
-| Ops report (Mitchell/Jeni) | HTML via `references/ops-dashboard-template.html` |
+| Ops report (weekly ops) | HTML via `references/dashboard.md` render (dedicated ops template deferred) |
 | Dormant account list | HTML artifact — `templates/dormant-template.html` |
 | Unanswered posts queue | Chat table — full titles, IDs, links |
 | Heroes tracker | HTML artifact — `templates/super-users-template.html` |
@@ -175,4 +181,5 @@ Typography: Inter (primary) · IBM Plex Mono (data labels, metrics, code)
 
 ---
 
-*Pulse v1.0 Aegis (2026-06-03) — Ported from Pulse v1.1. Heroes Readiness Score formula, data quality issues, and ARR Band GSID map moved here from SKILL.md for centralised maintenance. Capability logic extracted to capability-*.md files.*
+*2026.06.13 — Migrated to the Aegis shared layer: footer/voice delegated to shared/output-discipline.md (Pulse-local disclaimer string removed), cross-skill handoff to shared/redirect.md; both added to the reference loading table. CalVer header adopted. PII scrub — employee names removed from ops-dashboard triggers (now "weekly ops"). Community KPIs, Snowflake sources, Heroes logic, and data-quality fixes unchanged.*
+*2026.06 (v1.0) — Ported from Pulse v1.1. Heroes Readiness Score formula, data quality issues, and ARR Band GSID map moved here from SKILL.md for centralised maintenance. Capability logic extracted to capability-*.md files.*

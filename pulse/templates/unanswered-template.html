@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<!-- Aegis stack 2026.06.13 — ported from Pulse archive package -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unanswered Questions — Jamf Nation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --celtic-blue: #056AE6;
+    --haiti: #100F2F;
+    --pearl: #F9F7F1;
+    --amber: #E08A00;
+    --amber-bg: #FFF3CD;
+    --red: #C41E3A;
+    --red-bg: #FFE4E4;
+    --gray: #9CA3AF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--pearl);
+    color: var(--haiti);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--haiti);
+    color: white;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 { font-size: 1.25rem; font-weight: 600; }
+  .header .subtitle { font-size: 0.8rem; opacity: 0.6; margin-top: 2px; }
+  .ai-note { font-size: 0.7rem; opacity: 0.5; }
+
+  .summary-strip {
+    background: white;
+    padding: 16px 32px;
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid #E5E7EB;
+    flex-wrap: wrap;
+  }
+  .summary-tile { text-align: center; min-width: 80px; }
+  .summary-tile .count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .summary-tile .label {
+    font-size: 0.72rem;
+    color: #6B7280;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .count-total  { color: var(--celtic-blue); }
+  .count-amber  { color: var(--amber); }
+  .count-red    { color: var(--red); }
+  .count-zero   { color: var(--haiti); }
+
+  .content { padding: 24px 32px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  thead tr { background: var(--haiti); color: white; }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  tbody tr:nth-child(even) { background: var(--pearl); }
+  tbody tr:hover { background: #EEF4FE; }
+  tbody td {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #F3F4F6;
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .topic-cell {
+    max-width: 320px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+  }
+  .badge.amber    { background: var(--amber); }
+  .badge.red      { background: var(--red); }
+  .badge.critical { background: var(--red); font-weight: 800; letter-spacing: 0.02em; }
+
+  .zero-replies { color: var(--red); font-weight: 600; }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; }
+
+  .empty-state {
+    background: white;
+    border-radius: 8px;
+    padding: 64px 48px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: #6B7280;
+  }
+
+  .footer {
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid #E5E7EB;
+    font-size: 0.75rem;
+    color: #6B7280;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div style="font-size:1.25rem;font-weight:600;">Unanswered Questions — Jamf Nation</div>
+    <div style="font-size:0.8rem;opacity:0.6;margin-top:2px;">Questions with no accepted answer · 7+ days old · Oldest first · AI-generated from Snowflake</div>
+  </div>
+  <div style="font-size:0.7rem;opacity:0.5;">Pulse v2.0 · {{RUN_DATE}}</div>
+</div>
+
+<div class="summary-strip">
+  <div class="summary-tile">
+    <div class="count count-total" id="totalCount">—</div>
+    <div class="label">Total Unanswered</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-amber" id="amberCount">—</div>
+    <div class="label">Amber (7–14d)</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-red" id="redCount">—</div>
+    <div class="label">Red (15–30d)</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-red" id="criticalCount">—</div>
+    <div class="label">Critical (30d+)</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-zero" id="zeroRepliesCount">—</div>
+    <div class="label">Zero Replies</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div id="tableContainer">
+    <table>
+      <thead>
+        <tr>
+          <th>Topic</th>
+          <th>Category</th>
+          <th>Age</th>
+          <th>Replies</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="empty-state hidden" id="emptyState">
+    No unanswered questions older than 7 days. 🎉
+  </div>
+
+  <div class="footer">
+    Generated by Pulse · Jamf AI tools · Data from Snowflake/Gainsight
+  </div>
+</div>
+
+<script>
+// ── DATA INJECTION ──────────────────────────────────────────────
+// Replace UNANSWERED_DATA with the JSON array from the query:
+// [{ topic_title, category, created_at, age_days, n_replies, aging_band }, ...]
+// aging_band values: 'Amber' | 'Red' | 'Critical'
+const UNANSWERED_DATA = [
+  /* INJECT_DATA_HERE */
+];
+
+function init() {
+  const data = UNANSWERED_DATA;
+
+  if (data.length === 0) {
+    document.getElementById('tableContainer').classList.add('hidden');
+    document.getElementById('emptyState').classList.remove('hidden');
+    document.getElementById('totalCount').textContent = '0';
+    document.getElementById('amberCount').textContent = '0';
+    document.getElementById('redCount').textContent = '0';
+    document.getElementById('criticalCount').textContent = '0';
+    document.getElementById('zeroRepliesCount').textContent = '0';
+    return;
+  }
+
+  // Summary counts
+  const amber    = data.filter(r => r.aging_band === 'Amber').length;
+  const red      = data.filter(r => r.aging_band === 'Red').length;
+  const critical = data.filter(r => r.aging_band === 'Critical').length;
+  const zero     = data.filter(r => r.n_replies === 0).length;
+
+  document.getElementById('totalCount').textContent    = data.length;
+  document.getElementById('amberCount').textContent    = amber;
+  document.getElementById('redCount').textContent      = red;
+  document.getElementById('criticalCount').textContent = critical;
+  document.getElementById('zeroRepliesCount').textContent = zero;
+
+  // Table
+  const tbody = document.getElementById('tableBody');
+  data.forEach(r => {
+    const bandClass = r.aging_band === 'Amber' ? 'amber' : r.aging_band === 'Critical' ? 'critical' : 'red';
+    const repliesClass = r.n_replies === 0 ? 'zero-replies' : '';
+    const truncated = r.topic_title.length > 60 ? r.topic_title.slice(0,60) + '…' : r.topic_title;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="topic-cell" title="${escapeHtml(r.topic_title)}">${escapeHtml(truncated)}</td>
+      <td>${escapeHtml(r.category || '—')}</td>
+      <td class="mono">${r.age_days}d</td>
+      <td class="mono ${repliesClass}">${r.n_replies}</td>
+      <td><span class="badge ${bandClass}">${r.aging_band}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

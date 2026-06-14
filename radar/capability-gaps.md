@@ -1,10 +1,12 @@
 # Radar — Capability: Activity Gap / Compliance
-# Aegis v2.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/radar/capability-gaps.md
 #
 # Two variants in one file — routed by tier.
 # CSM: "activity gap", "stale accounts", "haven't I touched" → My Gaps
 # FLL: "team activity gap", "team compliance", "who needs coaching" → Team Compliance
+# Data routing: shared/source-routing.md. Output/footer: shared/output-discipline.md (lean footer).
+# Empty/partial data: error-handling §B (esp. §B6 compliance roll-up incompleteness).
 
 ---
 
@@ -66,6 +68,18 @@ run_query(
 Action line: derive from signals — escalation status, sentiment, renewal proximity. Start with sharpest available signal. No generic filler.
 
 **React accounts:** Last touch = MAX(`Last_Timeline_Entry_Engagement__gc`, `Last_Timeline_Entry_CSM_Email__gc`). Note: *"React cadence is CTA-driven — email counts as a valid touch."*
+
+### B6 — Hygiene-debt surfacing (READ-ONLY)
+
+The gap scan is the natural place to surface stale/orphaned hygiene alongside engagement gaps —
+READ-ONLY in Radar (surface, don't close or reassign; Phase 1 write block holds). On the same book:
+
+- **Stale-update >90d** — accounts with no timeline entry in >90 days (beyond the cadence overdue list).
+- **Orphaned artifacts** — open CTAs / success plans / activities whose owner has left
+  (`gsuser.IsActiveUser=false`). Flag these explicitly — they distort compliance and never self-clear.
+
+Render as a short trailing strip: *"Also: [N] artifacts owned by departed users on your book —
+reassign with your FLL."* Omit if clear. (Companion to capability-plate.md B6 "clear the deck first".)
 
 **Output:** Chat response.
 
@@ -188,4 +202,5 @@ Compliance by CSM:
 
 ---
 
-*Radar capability-gaps.md v2.0 (2026-06-03) — Ported from Gainsight Sentinel v3.7 references/my-book.md (my-gaps) and references/compliance.md. P_5026 note preserved.*
+*2026.06.13 — Migrated onto shared layer (header CalVer; data routing → source-routing, output → output-discipline lean footer, empty/partial → error-handling §B incl. §B6 compliance-incompleteness). Added B6 hygiene-debt surfacing, READ-ONLY (stale-update >90d + artifacts owned by departed users), companion to capability-plate.md B6. P_5026 SUM(CASE WHEN) note preserved.*
+*2026-06-03 (v2.0) — Ported from Gainsight Sentinel v3.7 references/my-book.md (my-gaps) and references/compliance.md.*

@@ -1,10 +1,10 @@
 # Pulse — Capability: Community Dashboard
-# Aegis v1.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/pulse/capability-dashboard.md
 #
 # Triggers: "community dashboard", "KPI report", "how is Jamf Nation doing",
 #           "community health", "community KPIs", "community snapshot"
-# Ops variant: "ops dashboard", "weekly ops", "Mitchell dashboard", "Jeni dashboard"
+# Ops variant: "ops dashboard", "weekly ops"
 
 ---
 
@@ -28,10 +28,11 @@ Output: PDF via `references/pdf-template.html`.
 
 ## Ops Dashboard (`pulse_ops`)
 
-Trigger: "ops dashboard" / "weekly ops" / "Mitchell dashboard" / "Jeni dashboard"
+Trigger: "ops dashboard" / "weekly ops"
 
-Output: HTML via `references/ops-dashboard-template.html`. Load that file for full spec.
+Output: HTML — reuse the standard dashboard render (`references/dashboard.md`). A dedicated ops-dashboard template is a deferred enhancement (not yet authored).
 
 ---
 
-*Pulse capability-dashboard.md v1.0 (2026-06-03) — Extracted from Pulse v1.1 SKILL.md. Full render spec in references/dashboard.md and references/pdf-template.html.*
+*2026.06.13 — PII scrub: employee names removed from the ops-dashboard triggers (now "ops dashboard" / "weekly ops"). CalVer header adopted. Render specs unchanged.*
+*2026.06 (v1.0) — Extracted from Pulse v1.1 SKILL.md. Full render spec in references/dashboard.md and references/pdf-template.html.*

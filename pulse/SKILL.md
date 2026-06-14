@@ -30,8 +30,7 @@ Load on demand per the reference loading table in `protocol.md`:
 - `references/kpi-definitions.md` — locked metric definitions, exclusion rules, data quality issues
 - `references/dashboard.md` — KPI report render spec
 - `references/pdf-template.html` — KPI report HTML → PDF template
-- `references/ops-dashboard-template.html` — weekly ops dashboard HTML
-- `references/ai-footer.md` — AI disclaimer module
+- *(footer/disclaimer policy lives in `shared/output-discipline.md` — full footer + header short-form. Don't author Pulse-local disclaimer strings.)*
 - `references/dormant.md` — dormant account query spec (v2.1)
 - `references/unanswered.md` — unanswered posts query spec (v1.3)
 - `references/super-users.md` — Heroes tracker spec (v1.3)
@@ -43,4 +42,5 @@ Load on demand per the reference loading table in `protocol.md`:
 
 ---
 
-*Pulse v2.0 (2026-06-03) — Ported to Aegis hosted logic framework. Logic extracted to aegis/pulse/. Bundled references unchanged from v1.1.*
+*Pulse 2026.06.13 — Community intelligence skill on the Aegis shared layer. Capabilities: dashboard · ops dashboard · dormant · unanswered · Heroes tracker · Heroes pipeline. Footer/voice governed by shared/output-discipline.md; cross-skill handoff by shared/redirect.md. Community KPIs and Snowflake sources unchanged.*
+*2026.06 (v2.0) — Ported to Aegis hosted logic framework. Logic extracted to aegis/pulse/. Bundled references unchanged from v1.1.*

@@ -1,9 +1,10 @@
 # Radar — Capability: My Plate / Top Accounts
-# Aegis v2.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/radar/capability-plate.md
 #
 # CSM: "what's on my plate", "top accounts this week", "what should I work on"
 # FLL: "what should I work on" → shows team escalations view (routes to heat-map for full picture)
+# Data routing (incl. Staircase): shared/source-routing.md. Output/footer: shared/output-discipline.md.
 
 ---
 
@@ -44,6 +45,25 @@ run_query(
 )
 ```
 
+### B1 — Unified Staircase fan-out (book / plate pulls)
+
+When the plate pull layers Staircase insight flags onto the book, do it in **one** `staircase_query`
+returning the priority fields AND the insight-flag booleans per account — not a book pull plus N flag
+pulls. Collapse the fan-out into a single call.
+
+Two gotchas, both load-bearing:
+
+- **"My accounts" does NOT auto-scope in Staircase.** Staircase has no notion of the connected CSM's
+  book — a bare "my accounts" query returns the whole tenant. Pass the resolved account set
+  (names/ids from the Gainsight book pull) explicitly into the Staircase query. Never assume scope.
+- **Portfolio-wide flag queries truncate.** A single Staircase query spanning a full book silently
+  caps its result set, so any flag **intersection** ("dark AND no-QBR") under-counts without erroring.
+  For filtering a whole book by flags, prefer the Gainsight synced `Staircase_*__gc` fields per
+  `shared/source-routing.md` B7 (filter wide on Gainsight, drill deep on Staircase). Use the unified
+  Staircase fan-out for the priority slice the plate actually renders (top 3–5 per tier), not the book.
+
+---
+
 ### Two-tier output
 
 **Tactical (act this week):** Escalated status · renewal ≤60 days · sentiment D/F. Top 3–5.
@@ -78,9 +98,26 @@ One line per account. Template: `[Lead signal] → [Action verb] [timeframe]. [O
 
 **React accounts:** Last touch = MAX(`Last_Timeline_Entry_Engagement__gc`, `Last_Timeline_Entry_CSM_Email__gc`). Note: *"React cadence is CTA-driven — email counts as valid touch for UpMarket KPI."*
 
+### B6 — Cleanup-before-create gate (READ-ONLY)
+
+Before the plate piles on new work, surface existing hygiene debt so the user clears the deck first.
+This is **read-only in Radar** — Radar shows the debt, it does not close, reassign, or edit anything
+(Phase 1 write block holds). Three checks across the book in scope:
+
+- **Past-due >90d** — open CTAs / success-plan actions with `DueDate` more than 90 days past.
+- **Stale-update >90d** — accounts whose last timeline entry (`Last_Timeline_Entry_All__gc`) is older
+  than 90 days.
+- **Orphaned artifacts** — CTAs / success plans / activities owned by a user who has left
+  (`gsuser.IsActiveUser=false` on the owner). These rot silently and skew compliance.
+
+Render as a short "Clear the deck first" strip above Tactical when any check fires. One line each:
+*"[N] past-due items >90d · [N] accounts un-touched >90d · [N] artifacts owned by departed users →
+clean these before adding new work."* Omit the strip entirely if all three are clear. Don't block the
+plate — surface, don't gate.
+
 ### Output
 
-HTML artifact. Two clearly labeled sections: Tactical / Strategic.
+HTML artifact. Sections in order: Clear-the-deck strip (B6, if any) · Tactical · Strategic.
 
 ---
 
@@ -116,4 +153,5 @@ Output: chat list. Offer heat-map for full picture.
 
 ---
 
-*Radar capability-plate.md v2.0 (2026-06-03) — Ported from Gainsight Sentinel v3.7 references/my-book.md (my-plate section).*
+*2026.06.13 — Migrated onto shared layer (header CalVer; data routing → source-routing, output → output-discipline). Added B1 unified Staircase fan-out (one staircase_query for priority fields + insight booleans; "my accounts" doesn't auto-scope + portfolio flag queries truncate → filter wide on Gainsight synced fields per source-routing B7). Added B6 cleanup-before-create gate, READ-ONLY (past-due >90d · stale-update >90d · artifacts owned by departed users → "clear the deck first" strip).*
+*2026-06-03 (v2.0) — Ported from Gainsight Sentinel v3.7 references/my-book.md (my-plate section).*

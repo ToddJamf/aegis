@@ -1,5 +1,5 @@
 # Radar — Capability: Team / Segment Heat Map
-# Aegis v2.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/radar/capability-heat-map.md
 #
 # Load when any CS leader asks about escalations, team risk, wins, or the health balance sheet.
@@ -7,6 +7,8 @@
 #           "team risk", "segment risk", "team heat map", "what's going well",
 #           "team wins", "where should leadership focus"
 # Permission: FLL, Segment Leader, SR Leadership, Department Head.
+# Data routing (incl. Staircase): shared/source-routing.md. Output/footer: shared/output-discipline.md.
+# Report mining (ride admin-built reports over hand-built queries): see § Report mining below.
 
 ---
 
@@ -25,6 +27,26 @@
 3. Fetch target's downward `teamGsids` (recursive walk, depth 5).
 4. Apply `Csm IN [scope.teamGsids]`. Label output: `[scope: [Name]'s segment]`.
 5. Authorization: target must be within requester's downward hierarchy OR requester is CS Ops. If not → refuse: *"[Name] isn't in your hierarchy. Scoped views are limited to your own org."*
+
+---
+
+## Report mining — ride admin-built reports before hand-building queries
+
+Where a Gainsight admin has already built a report encoding the leader view (escalations, team risk,
+at-risk roll-ups), ride it via `report_search_tool` + `fetch_report_data` instead of hand-building the
+queries below. Admin reports drift less than hand-built selects — they're maintained against the live
+schema, so they survive field renames and tenant changes that break a hardcoded `run_query`.
+
+Distinguish two things the report carries:
+
+- **The report encodes tenant *conventions*** — which fields define "escalated", how health tiers are
+  cut, what counts as the team. Ride these; they're the admin's canonical definitions.
+- **Report-specific filters encode *scope*** — a report may be pre-scoped to one team, region, or ARR
+  floor. Read the filter set before trusting the rows; re-scope to the requester's `identity.teamGsids`
+  (or the resolved named-segment scope) rather than inheriting the report author's scope blindly.
+
+**Fallback:** no suitable report exists, or its scope can't be reconciled → hand-built queries below
+remain the fallback. Report mining is the preferred path, not the only one.
 
 ---
 
@@ -157,4 +179,5 @@ HTML artifact.
 
 ---
 
-*Radar capability-heat-map.md v2.0 (2026-06-03) — Ported from Gainsight Sentinel v3.7 references/heat-map.md. P_5005 region filter caveat preserved.*
+*2026.06.13 — Migrated onto shared layer (header CalVer; data routing → source-routing, output → output-discipline). Added report mining: where an admin-built Gainsight report encodes the leader view, ride it via report_search_tool + fetch_report_data over hand-built queries (reports encode tenant *conventions*; report-specific filters encode *scope* — re-scope to requester, don't inherit author scope; hand-built queries remain the fallback). P_5005 region-filter caveat preserved.*
+*2026-06-03 (v2.0) — Ported from Gainsight Sentinel v3.7 references/heat-map.md.*

@@ -1,11 +1,12 @@
 # Radar — Capability: Expansion Pipeline
-# Aegis v2.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/radar/capability-expansion.md
 #
 # Tab 2 of the Radar artifact. Full book, E1–E4 scoring, two-pass approach.
 # Uses company and relationship data already fetched by capability-renewal.md.
 # Load scoring formulas from references/scoring.md.
 # Load HTML artifact template from references/artifact.md.
+# Staircase recency + risk-weighting routing: shared/source-routing.md (B2). Output: output-discipline.md.
 
 ---
 
@@ -73,6 +74,26 @@ Load `references/scoring.md` for full E1–E4 formulas.
 
 ---
 
+## B2 — Risk × Expansion recency (Staircase narrative)
+
+Applies whenever the row drill reads Staircase narrative for an expansion signal — and the same logic
+governs renewal risk reads (capability-renewal.md), since they share the source. The routing-level rule
+lives in `shared/source-routing.md` (Recency on Staircase analyses); apply it here at the capability:
+
+- Staircase **Risk** and **Expansion** analyses run as **independent analyst agents** — they don't
+  reference each other and expose **no analysis timestamp**. Don't treat one as informed by the other.
+- **Recency proxy:** request each analysis's **cited-evidence date range** — that's the only recency
+  signal available. When the Risk and Expansion analyses **disagree about the same stakeholder**, the
+  one anchored on the **more recent evidence** wins.
+- **Risk-weighted readiness:** discount expansion readiness by **50% when risk ≥ 4**. A hot expansion
+  signal sitting on unaddressed risk is not as ready as it reads. Apply at the row-render layer to the
+  expansion verdict (not the raw E-score) — surface it: *"Expansion signal strong, but risk is [N] —
+  readiness halved until risk is addressed."*
+
+This affects the rendered verdict only; the E1–E4 scoring in references/scoring.md is unchanged.
+
+---
+
 ## Render
 
 Tab 2 of the Radar artifact. Load `references/artifact.md` for full HTML template.
@@ -100,4 +121,5 @@ If no high-confidence match: *"No Staircase match found for [Account Name]."* Do
 
 ---
 
-*Radar capability-expansion.md v2.0 (2026-06-03) — Extracted from Radar SKILL.md v1.3. Full scoring spec in references/scoring.md. Full HTML spec in references/artifact.md.*
+*2026.06.13 — Migrated onto shared layer (header CalVer; Staircase routing → source-routing). Added B2 risk × expansion recency: Risk + Expansion are independent analyst agents with no timestamp → use each analysis's cited-evidence date range as the recency proxy; on stakeholder disagreement the more-recent-anchored analysis wins; discount expansion readiness 50% when risk ≥ 4 (render-layer verdict only — E1–E4 scoring unchanged). Routing-level rule cited from source-routing.md; also governs renewal risk reads.*
+*2026-06-03 (v2.0) — Extracted from Radar SKILL.md v1.3. Full scoring spec in references/scoring.md.*

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<!-- Aegis stack 2026.06.13 — ported from Pulse archive package -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dormant Accounts — Jamf Nation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --celtic-blue: #056AE6;
+    --haiti: #100F2F;
+    --pearl: #F9F7F1;
+    --freshmaker: #50DEAF;
+    --amber: #E08A00;
+    --red: #C41E3A;
+    --gray: #9CA3AF;
+    --amber-bg: #FFF3CD;
+    --red-bg: #FFE4E4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--pearl);
+    color: var(--haiti);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--haiti);
+    color: white;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 { font-size: 1.25rem; font-weight: 600; }
+  .header .subtitle { font-size: 0.8rem; opacity: 0.6; margin-top: 2px; }
+  .ai-note { font-size: 0.7rem; opacity: 0.5; }
+
+  .controls {
+    background: white;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 14px 32px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .controls label { font-size: 0.8rem; font-weight: 500; color: #6B7280; }
+  .controls select {
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--haiti);
+    background: white;
+    cursor: pointer;
+  }
+  .controls select:focus { outline: none; border-color: var(--celtic-blue); }
+
+  .summary-strip {
+    background: white;
+    padding: 16px 32px;
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+  .summary-tile {
+    text-align: center;
+    min-width: 80px;
+  }
+  .summary-tile .count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .summary-tile .label {
+    font-size: 0.72rem;
+    color: #6B7280;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .count-amber { color: var(--amber); }
+  .count-red   { color: var(--red); }
+  .count-total { color: var(--celtic-blue); }
+
+  .content { padding: 24px 32px; }
+
+  .tier-section { margin-bottom: 32px; }
+  .tier-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .tier-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    color: white;
+  }
+  .tier-label.amber { background: var(--amber); }
+  .tier-label.red   { background: var(--red); }
+  .tier-count { font-size: 0.8rem; color: #6B7280; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  thead tr { background: var(--haiti); color: white; }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  tbody tr:nth-child(even) { background: var(--pearl); }
+  tbody tr:hover { background: #EEF4FE; }
+  tbody td {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #F3F4F6;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: white;
+  }
+  .badge.amber { background: var(--amber); }
+  .badge.red   { background: var(--red); }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; }
+
+  .footer {
+    margin-top: 24px;
+    padding: 16px 0 0;
+    border-top: 1px solid #E5E7EB;
+    font-size: 0.78rem;
+    color: #6B7280;
+    line-height: 1.6;
+  }
+
+  .empty-state {
+    background: white;
+    border-radius: 8px;
+    padding: 48px;
+    text-align: center;
+    color: #6B7280;
+    font-size: 0.9rem;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="h1">Dormant Accounts — Jamf Nation</div>
+    <div class="subtitle">Accounts with no community activity in 90+ days · AI-generated from Snowflake</div>
+  </div>
+  <div class="ai-note">Pulse v2.0 · {{RUN_DATE}}</div>
+</div>
+
+<div class="controls">
+  <div>
+    <label for="arrFilter">ARR Band &nbsp;</label>
+    <select id="arrFilter" onchange="applyFilters()">
+      <option value="">All ARR Bands</option>
+      <option value="$10k or less">$10k or less</option>
+      <option value="$10k – $50k">$10k – $50k</option>
+      <option value="$50k – $100k">$50k – $100k</option>
+      <option value="$100k – $250k">$100k – $250k</option>
+      <option value="$250k or more">$250k or more</option>
+      <option value="Unknown">Unknown¹</option>
+    </select>
+  </div>
+  <div>
+    <label for="csmFilter">CSM &nbsp;</label>
+    <select id="csmFilter" onchange="applyFilters()">
+      <option value="">All CSMs</option>
+      <!-- Populated by script -->
+    </select>
+  </div>
+</div>
+
+<div class="summary-strip" id="summaryStrip">
+  <div class="summary-tile">
+    <div class="count count-total" id="totalCount">—</div>
+    <div class="label">Total Dormant</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-amber" id="amberCount">—</div>
+    <div class="label">Amber (90–179d)</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-red" id="redCount">—</div>
+    <div class="label">Red (180d+)</div>
+  </div>
+</div>
+
+<div class="content">
+  <!-- Amber tier -->
+  <div class="tier-section" id="amberSection">
+    <div class="tier-header">
+      <span class="tier-label amber">Amber — 90–179 Days</span>
+      <span class="tier-count" id="amberTableCount"></span>
+    </div>
+    <table id="amberTable">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>CSM</th>
+          <th>ARR Band</th>
+          <th>Last Activity</th>
+          <th>Days Inactive</th>
+          <th>Page Views</th>
+          <th>Tier</th>
+        </tr>
+      </thead>
+      <tbody id="amberBody"></tbody>
+    </table>
+    <div class="empty-state hidden" id="amberEmpty">No amber accounts match the current filter.</div>
+  </div>
+
+  <!-- Red tier -->
+  <div class="tier-section" id="redSection">
+    <div class="tier-header">
+      <span class="tier-label red">Red — 180+ Days</span>
+      <span class="tier-count" id="redTableCount"></span>
+    </div>
+    <table id="redTable">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>CSM</th>
+          <th>ARR Band</th>
+          <th>Last Activity</th>
+          <th>Days Inactive</th>
+          <th>Page Views</th>
+          <th>Tier</th>
+        </tr>
+      </thead>
+      <tbody id="redBody"></tbody>
+    </table>
+    <div class="empty-state hidden" id="redEmpty">No red accounts match the current filter.</div>
+  </div>
+
+  <!-- Global empty state -->
+  <div class="empty-state hidden" id="globalEmpty">
+    No dormant accounts found.
+  </div>
+
+  <div class="footer" id="footer">
+    <p>¹ Unknown ARR = no ARR data on file for this account in Gainsight.</p>
+    <p style="margin-top:6px;">Contact CS Ops for full export.</p>
+    <p style="margin-top:6px; opacity:0.6;">Generated by Pulse · Jamf AI tools · Data from Snowflake/Gainsight</p>
+  </div>
+</div>
+
+<script>
+// ── DATA INJECTION ──────────────────────────────────────────────
+// Replace DORMANT_DATA with the JSON array from the query:
+// [{ company, csm, arr_band, last_activity, days_inactive, page_views, tier }, ...]
+const DORMANT_DATA = [
+  /* INJECT_DATA_HERE */
+];
+
+// ── INIT ─────────────────────────────────────────────────────────
+function init() {
+  // Populate CSM filter
+  const csms = [...new Set(DORMANT_DATA.map(r => r.csm))].sort();
+  const csmSel = document.getElementById('csmFilter');
+  csms.forEach(csm => {
+    const opt = document.createElement('option');
+    opt.value = csm;
+    opt.textContent = csm;
+    csmSel.appendChild(opt);
+  });
+  applyFilters();
+}
+
+function applyFilters() {
+  const arrF = document.getElementById('arrFilter').value;
+  const csmF = document.getElementById('csmFilter').value;
+
+  const filtered = DORMANT_DATA.filter(r => {
+    if (arrF && r.arr_band !== arrF) return false;
+    if (csmF && r.csm !== csmF) return false;
+    return true;
+  });
+
+  const amber = filtered.filter(r => r.tier === 'Amber');
+  const red   = filtered.filter(r => r.tier === 'Red');
+
+  renderTable('amberBody', amber, 'amber');
+  renderTable('redBody', red, 'red');
+
+  document.getElementById('totalCount').textContent = filtered.length;
+  document.getElementById('amberCount').textContent = amber.length;
+  document.getElementById('redCount').textContent   = red.length;
+  document.getElementById('amberTableCount').textContent = `${amber.length} accounts`;
+  document.getElementById('redTableCount').textContent   = `${red.length} accounts`;
+
+  // Empty states
+  const globalEmpty = filtered.length === 0;
+  document.getElementById('globalEmpty').classList.toggle('hidden', !globalEmpty);
+  document.getElementById('amberSection').classList.toggle('hidden', globalEmpty);
+  document.getElementById('redSection').classList.toggle('hidden', globalEmpty);
+
+  if (!globalEmpty) {
+    document.getElementById('amberTable').classList.toggle('hidden', amber.length === 0);
+    document.getElementById('amberEmpty').classList.toggle('hidden', amber.length > 0);
+    document.getElementById('redTable').classList.toggle('hidden', red.length === 0);
+    document.getElementById('redEmpty').classList.toggle('hidden', red.length > 0);
+
+    // CSM name mismatch hint
+    if (csmF && filtered.length === 0) {
+      document.getElementById('globalEmpty').textContent =
+        `No dormant accounts found for "${csmF}". CSM names must match Gainsight exactly — try the full name as it appears in your book.`;
+    } else if (filtered.length === 0) {
+      document.getElementById('globalEmpty').textContent = 'No dormant accounts found.';
+    }
+  }
+}
+
+function renderTable(tbodyId, rows, tier) {
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.company}</td>
+      <td>${r.csm}</td>
+      <td>${r.arr_band}</td>
+      <td class="mono">${r.last_activity ? r.last_activity.slice(0,10) : '—'}</td>
+      <td class="mono">${r.days_inactive}</td>
+      <td class="mono">${r.page_views ?? 0}</td>
+      <td><span class="badge ${tier}">${tier === 'amber' ? 'Amber' : 'Red'}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

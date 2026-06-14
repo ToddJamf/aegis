@@ -1,5 +1,5 @@
 # Radar — Capability: Portfolio / Segment Story
-# Aegis v2.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/radar/capability-portfolio.md
 #
 # FLL / Segment Leader / SR Leadership / Dept Head asking for a portfolio view,
@@ -7,6 +7,8 @@
 # Triggers: "portfolio view", "ARR risk", "segment story", "what do I tell my boss",
 #           "QBR prep", "renewal exposure", "segment health", "book from 30k feet"
 # Permission: FLL and above.
+# Data routing (incl. Staircase): shared/source-routing.md. Output/footer: shared/output-discipline.md.
+# Report mining (ride admin-built reports over hand-built queries): see § Report mining below.
 
 ---
 
@@ -25,6 +27,23 @@ Two-part output:
 | Default / "my team" / "my book" | `Csm IN [identity.teamGsids]` |
 | "[region]" | `CS_Territory_Region__gc = <region>` |
 | "All" / "global" | No Csm filter |
+
+---
+
+## Report mining — ride admin-built reports before hand-building queries
+
+The portfolio numbers (ARR by health, renewal exposure by window, escalation pool) are exactly the
+kind of view a Gainsight admin has often already built as a maintained report. Ride it via
+`report_search_tool` + `fetch_report_data` over the hand-built aggregations below — admin reports track
+the live schema and won't drift the way a hardcoded `run_query` does (and `SUM(CASE WHEN)` is dead in
+tenant anyway — P_5026).
+
+- **Reports encode tenant *conventions*** — the canonical health-tier cuts, renewal-window bucketing,
+  and escalation definition. Ride these rather than re-deriving them.
+- **Report-specific filters encode *scope*** — re-scope to the requester's `identity.teamGsids` or the
+  resolved segment, don't inherit the report author's pre-set team/region/ARR floor.
+
+**Fallback:** no suitable report, or scope can't be reconciled → the hand-built queries below stand.
 
 ---
 
@@ -138,4 +157,5 @@ Tone: executive register. Something the FLL can say in a leadership call, not a 
 
 ---
 
-*Radar capability-portfolio.md v2.0 (2026-06-03) — Ported from Gainsight Sentinel v3.7 references/portfolio.md. P_5026 note preserved.*
+*2026.06.13 — Migrated onto shared layer (header CalVer; data routing → source-routing, output → output-discipline). Added report mining: ride admin-built Gainsight reports via report_search_tool + fetch_report_data over hand-built aggregations (reports encode tenant *conventions*; report-specific filters encode *scope* — re-scope to requester; hand-built queries remain the fallback). P_5026 SUM(CASE WHEN) note preserved.*
+*2026-06-03 (v2.0) — Ported from Gainsight Sentinel v3.7 references/portfolio.md.*

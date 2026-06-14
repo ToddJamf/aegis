@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<!-- Aegis stack 2026.06.13 — ported from Pulse archive package -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heroes Tracker — Jamf Nation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --celtic-blue: #056AE6;
+    --haiti: #100F2F;
+    --pearl: #F9F7F1;
+    --freshmaker: #50DEAF;
+    --amber: #E08A00;
+    --red: #C41E3A;
+    --gray: #9CA3AF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--pearl);
+    color: var(--haiti);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--haiti);
+    color: white;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ai-note { font-size: 0.7rem; opacity: 0.5; }
+
+  .summary-strip {
+    background: white;
+    padding: 16px 32px;
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid #E5E7EB;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .summary-tile { text-align: center; min-width: 80px; }
+  .summary-tile .count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .summary-tile .label {
+    font-size: 0.72rem;
+    color: #6B7280;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .count-total      { color: var(--celtic-blue); }
+  .count-active     { color: var(--freshmaker); }
+  .count-fading     { color: var(--amber); }
+  .count-risk       { color: var(--red); }
+  .count-inactive   { color: var(--gray); }
+
+  .caveat {
+    font-size: 0.8rem;
+    color: rgba(16,15,47,0.55);
+    padding: 8px 32px 0;
+    background: white;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .controls {
+    background: white;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 12px 32px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .controls label { font-size: 0.8rem; font-weight: 500; color: #6B7280; }
+  .controls select {
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--haiti);
+    background: white;
+    cursor: pointer;
+  }
+
+  .content { padding: 24px 32px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  thead tr { background: var(--haiti); color: white; }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  tbody tr:nth-child(even) { background: var(--pearl); }
+  tbody tr:hover { background: #EEF4FE; }
+  tbody td {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #F3F4F6;
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .score-cell { min-width: 160px; }
+  .score-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .score-bar-bg {
+    flex: 1;
+    height: 10px;
+    background: #E5E7EB;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+  .score-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    min-width: 36px;
+    text-align: right;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+  }
+  .badge.active   { background: var(--freshmaker); color: var(--haiti); }
+  .badge.fading   { background: var(--amber); }
+  .badge.risk     { background: var(--red); }
+  .badge.inactive { background: var(--gray); }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; }
+  .muted { color: #9CA3AF; font-style: italic; }
+
+  .inactive-toggle {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.83rem;
+    color: var(--celtic-blue);
+    font-weight: 500;
+    user-select: none;
+  }
+  .inactive-toggle:hover { text-decoration: underline; }
+
+  .inactive-section { margin-top: 8px; }
+
+  .footer {
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid #E5E7EB;
+    font-size: 0.75rem;
+    color: #6B7280;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div style="font-size:1.25rem;font-weight:600;">Heroes Tracker — Jamf Nation</div>
+    <div style="font-size:0.8rem;opacity:0.6;margin-top:2px;">Current Heroes engagement health · Heroes Readiness Score · AI-generated from Snowflake</div>
+  </div>
+  <div class="ai-note">Pulse v2.0 · {{RUN_DATE}}</div>
+</div>
+
+<div class="summary-strip">
+  <div class="summary-tile">
+    <div class="count count-total" id="totalCount">—</div>
+    <div class="label">Total Heroes</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-active" id="activeCount">—</div>
+    <div class="label">Active (70+)</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-fading" id="fadingCount">—</div>
+    <div class="label">Fading (40–69)</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-risk" id="riskCount">—</div>
+    <div class="label">At Risk (10–39)</div>
+  </div>
+  <div class="summary-tile">
+    <div class="count count-inactive" id="inactiveCount">—</div>
+    <div class="label">Inactive (0–9)</div>
+  </div>
+</div>
+
+<div class="caveat">
+  Scores reflect community activity since August 2024. Tenured Heroes may score lower due to earlier contribution history.
+</div>
+
+<div class="controls">
+  <label for="bandFilter">Band &nbsp;</label>
+  <select id="bandFilter" onchange="applyFilter()">
+    <option value="">All Bands</option>
+    <option value="Active Hero">Active Hero</option>
+    <option value="Fading">Fading</option>
+    <option value="At Risk">At Risk</option>
+  </select>
+</div>
+
+<div class="content">
+  <!-- Active, Fading, At Risk rows -->
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Score</th>
+        <th>Replies (365d)</th>
+        <th>Replies (90d)</th>
+        <th>Solutions</th>
+        <th>Last Badge</th>
+        <th>Band</th>
+      </tr>
+    </thead>
+    <tbody id="mainBody"></tbody>
+  </table>
+
+  <!-- Inactive toggle -->
+  <div id="inactiveToggleRow" class="inactive-toggle" onclick="toggleInactive()">
+    <span id="toggleArrow">▼</span>
+    <span id="toggleLabel">Show — inactive Heroes</span>
+  </div>
+
+  <!-- Inactive rows (collapsed by default) -->
+  <div class="inactive-section hidden" id="inactiveSection">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Score</th>
+          <th>Replies (365d)</th>
+          <th>Replies (90d)</th>
+          <th>Solutions</th>
+          <th>Last Badge</th>
+          <th>Band</th>
+        </tr>
+      </thead>
+      <tbody id="inactiveBody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Generated by Pulse · Jamf AI tools · Data from Snowflake/Gainsight
+  </div>
+</div>
+
+<script>
+// ── DATA INJECTION ──────────────────────────────────────────────
+// Replace HEROES_DATA with JSON array from the query:
+// [{ username, score, replies_365d, replies_90d, solution_milestone, last_badge_earned, band }, ...]
+// band values: 'Active Hero' | 'Fading' | 'At Risk' | 'Inactive'
+const HEROES_DATA = [
+  /* INJECT_DATA_HERE */
+];
+
+let inactiveVisible = false;
+
+function bandClass(band) {
+  if (band === 'Active Hero') return 'active';
+  if (band === 'Fading')      return 'fading';
+  if (band === 'At Risk')     return 'risk';
+  return 'inactive';
+}
+
+function bandColor(band) {
+  if (band === 'Active Hero') return '#50DEAF';
+  if (band === 'Fading')      return '#E08A00';
+  if (band === 'At Risk')     return '#C41E3A';
+  return '#9CA3AF';
+}
+
+function renderRow(r) {
+  const cls   = bandClass(r.band);
+  const color = bandColor(r.band);
+  const pct   = Math.min(r.score, 100);
+  const lastBadge = r.last_badge_earned
+    ? r.last_badge_earned.slice(0,10)
+    : '<span class="muted">No CC activity recorded</span>';
+
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><strong>${r.username}</strong></td>
+    <td class="score-cell">
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg">
+          <div class="score-bar-fill" style="width:${pct}%;background:${color};"></div>
+        </div>
+        <span class="score-num">${r.score}</span>
+      </div>
+    </td>
+    <td class="mono">${r.replies_365d}</td>
+    <td class="mono">${r.replies_90d}</td>
+    <td class="mono">${r.solution_milestone}</td>
+    <td class="mono">${lastBadge}</td>
+    <td><span class="badge ${cls}">${r.band}</span></td>
+  `;
+  return tr;
+}
+
+function applyFilter() {
+  const bandF = document.getElementById('bandFilter').value;
+
+  const filtered = HEROES_DATA.filter(r => {
+    if (r.band === 'Inactive') return false; // always in separate section
+    if (bandF && r.band !== bandF) return false;
+    return true;
+  });
+
+  const inactive = HEROES_DATA.filter(r => r.band === 'Inactive');
+
+  const mainBody = document.getElementById('mainBody');
+  mainBody.innerHTML = '';
+  filtered.forEach(r => mainBody.appendChild(renderRow(r)));
+
+  const inactiveBody = document.getElementById('inactiveBody');
+  inactiveBody.innerHTML = '';
+  inactive.forEach(r => inactiveBody.appendChild(renderRow(r)));
+
+  // Update toggle label
+  document.getElementById('toggleLabel').textContent =
+    `${inactiveVisible ? 'Hide' : 'Show'} ${inactive.length} inactive Heroes`;
+  document.getElementById('inactiveToggleRow').classList.toggle('hidden', inactive.length === 0);
+}
+
+function init() {
+  const all = HEROES_DATA;
+  document.getElementById('totalCount').textContent    = all.length;
+  document.getElementById('activeCount').textContent   = all.filter(r => r.band === 'Active Hero').length;
+  document.getElementById('fadingCount').textContent   = all.filter(r => r.band === 'Fading').length;
+  document.getElementById('riskCount').textContent     = all.filter(r => r.band === 'At Risk').length;
+  document.getElementById('inactiveCount').textContent = all.filter(r => r.band === 'Inactive').length;
+  applyFilter();
+}
+
+function toggleInactive() {
+  inactiveVisible = !inactiveVisible;
+  document.getElementById('inactiveSection').classList.toggle('hidden', !inactiveVisible);
+  document.getElementById('toggleArrow').textContent = inactiveVisible ? '▲' : '▼';
+  const inactive = HEROES_DATA.filter(r => r.band === 'Inactive');
+  document.getElementById('toggleLabel').textContent =
+    `${inactiveVisible ? 'Hide' : 'Show'} ${inactive.length} inactive Heroes`;
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

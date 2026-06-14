@@ -1,5 +1,5 @@
 # Pulse — Capability: Dormant Accounts
-# Aegis v1.0 — June 2026
+# Aegis stack 2026.06.13
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/pulse/capability-dormant.md
 #
 # Triggers: "dormant accounts", "accounts gone quiet", "re-engagement list", "who's gone dark"
@@ -50,4 +50,5 @@ Columns: Company · CSM · ARR Tier · Last Activity · Days Dormant · Dormancy
 
 ---
 
-*Pulse capability-dormant.md v1.0 (2026-06-03) — Extracted from Pulse v1.1. Full query spec in references/dormant.md.*
+*2026.06.13 — CalVer header adopted. Query spec, ARR band map, and output unchanged.*
+*2026.06 (v1.0) — Extracted from Pulse v1.1. Full query spec in references/dormant.md.*
