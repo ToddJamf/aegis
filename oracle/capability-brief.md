@@ -86,10 +86,10 @@ Fire everything that has no dependency in parallel; render Batch 1 the moment it
 
 ### Batch 1 — Gainsight (fire on GSID, ~2s)
 
-1. **Resolve + attributes** — `resolve_customer` attributes mode → ARR, CSM, Stage, Renewal Date,
+1. **Resolve + attributes** — `resolve_customer` `mode="add_attributes"` → ARR, CSM, Stage, Renewal Date,
    Segment in one call (source-routing: account attributes). Apply IA handling if matches include an
    (IA) variant. Run in parallel with identity resolution.
-2. **Supplement select** — one `run_query` on `company` for brief-specific fields not in attributes
+2. **Supplement select** — one `run_query` on `company` for brief-specific fields not in `add_attributes`
    mode (Customer_Category, ARR band, sentiment, PreviousCsm, engagement fields,
    Engaged_This_Period_by_CSM__gc, Churn_Risk_Identified__gc, Number_of_Escalated_Renewals__gc)
    per `references/field-registry.md`. Dead field removed: `Engagement_Model__gc` (P_5005).
