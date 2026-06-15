@@ -1,5 +1,5 @@
 # Oracle — Protocol (Router)
-# Aegis stack 2026.06.13
+# Aegis stack 2026.06.15
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/oracle/protocol.md
 #
 # Oracle is Jamf's account meeting-prep skill. Pre-call briefs and success-plan drafts.
