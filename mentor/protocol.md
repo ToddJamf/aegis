@@ -1,5 +1,5 @@
 # Mentor — Protocol (Router)
-# Aegis stack 2026.06.13
+# Aegis stack 2026.06.15
 # https://raw.githubusercontent.com/ToddJamf/aegis/main/mentor/protocol.md
 #
 # Mentor is Jamf's 1:1 / people-prep skill. You're prepping for a conversation with a PERSON —
